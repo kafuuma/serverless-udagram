@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import * as middy from 'middy'
 import { secretsManager } from 'middy/middlewares'
 
-import { verify } from 'jsonwebtoken'
+// import { verify } from 'jsonwebtoken'
 import { JwtToken } from '../../auth/JwtToken'
 // import { Client } from 'elasticsearch'
 

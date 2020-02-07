@@ -25,9 +25,6 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   if (!validGroupId) {
     return {
       statusCode: 404,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
       body: JSON.stringify({
         error: 'Group does not exist'
 
@@ -96,6 +93,6 @@ function getUploadUrl(imageId: string){
 
 handler.use(
   cors({
-    credentials:true
+    credentials: true
   })
 )
