@@ -4,12 +4,20 @@ service:
 plugins:
   - serverless-webpack
   - serverless-reqvalidator-plugin
-  - serverless-aws-documentation 
+  - serverless-aws-documentation
+  - serverless-plugin-canary-deployments
+  - serverless-iam-roles-per-function
+  - serverless-dynamodb-local
+  - serverless-offline 
+
+package:  #functions are small and cold start reduced but longer compilation time(higher costs)
+  individually: true
 
 provider:
+  tracing:
+    lambda: true
+    apiGateway: true
   name: aws
-  logs:
-    restApi:true
   runtime: nodejs12.x
   apiGateway:
     # minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
@@ -66,9 +74,23 @@ provider:
       Action:
         - kms:Decrypt
       Resource: !GetAtt KMSKey.Arn
+    - Effect: Allow
+      Action:
+        - codedeploy:'*'
+      Resource:
+        - '*'
 
 custom:
   topicName: imagesTopic-${self:provider.stage}
+  serverless-offline:
+    port: 3003
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    stages:
+      - dev
   webpack:
     webpackConfig: ./webpack.config.js
     includeModules: true
@@ -116,6 +138,9 @@ functions:
             description: Create a new group
             requestModels:
               'application/json': GroupRequest
+    deploymentSettings:
+      type: Linear10PercentEvery1Minute
+      alias: Live
 
   GetImages:
     handler: src/lambda/http/getImages.handler
